@@ -1,0 +1,113 @@
+<section class="h-100 gradient-custom">
+    <div class="container py-5">
+      <div class="row d-flex justify-content-center my-4">
+        <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-header py-3">
+              <h5 class="mb-0">Liste des produits</h5>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button class="btn btn-primary float-right" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@getbootstrap"><i class="fas fa-plus"></i> Ajouter produit</button>
+            </div>
+            <div class="card-body">
+              <div class="row d-flex justify-content-center my-4">
+                <div *ngFor="let product of productList" class="col-md-4">
+                  <div class="card mb-4" style="width: 200px; height: 300px;">
+                    <img (error)="changeSource($event)" [src]="product.image" class="card-img-top" style="height: 100px; object-fit: cover; width: 70%;">
+                    <div class="card-body">
+                      <h4 class="card-title">{{ product.name }}</h4>
+                      <p class="card-text">{{ product.price }} DT</p>
+                      <a href="#" class="btn btn-sm rounded-pill float-right" (click)="addToCart(product)" style="background-color: rgb(198, 66, 198);">Ajouter au panier</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-5">
+          <div class="card mb-4">
+            <div class="card-body">
+              <div *ngFor="let cartItem of cartItems" class="d-flex align-items-center mb-5">
+                <div class="flex-shrink-0">
+                  <img [src]="cartItem.image" class="img-fluid" style="width: 150px;" alt="Product Image">
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h5 class="text-primary">{{ cartItem.name }}</h5>
+                  <h6 class="card-text">{{ cartItem.price }} DT</h6>
+                  <div class="d-flex align-items-center">
+                    <div class="def-number-input number-input safari_only">
+                      <button (click)="updateQuantity(cartItem, -1)" class="minus"></button>
+                      <input class="quantity fw-bold text-black" min="1" name="quantity" [value]="cartItem.quantity" type="number" disabled>
+                      <button (click)="updateQuantity(cartItem, 1)" class="plus"></button>
+                    </div>
+                    <div class="col-md-1 col-lg-1 col-xl-1 text-end">
+                      <a href="#!" class="text-danger" (click)="removeFromCart(cartItem.id)"><i class="fas fa-trash fa-lg"></i></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="mb-4" style="height: 2px; background-color: #1266f1; opacity: 1;">
+
+              <div class="d-flex justify-content-between px-x">
+                <p class="fw-bold">HT:</p>
+                <p class="fw-bold">{{ calculateHT() }} DT</p>
+              </div>
+              <div class="d-flex justify-content-between px-x">
+                <p class="fw-bold">TVA (19%):</p>
+                <p class="fw-bold">{{ calculateTVA() }} DT</p>
+              </div>
+              <div class="d-flex justify-content-between p-2 mb-2" style="background-color: #e1f5fe;">
+                <h5 class="fw-bold mb-0">TTC:</h5>
+                <h5 class="fw-bold mb-0">{{ calculateTTC() }} DT</h5>
+              </div>                            
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Ajouter produit</h5>
+          <button #closeModalBtn type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="productFormGroup">
+            <div class="mb-3">
+              <button (click)="fileInput.click()" style="background-color: transparent; border: none;">
+                <img (error) ="changeSource($event)" [src]="imgUrl" class="rounded-circle" width="100px" height="100px" />
+                <input hidden type="file" #fileInput (change)="onFileInput(fileInput.files)" formControlName="image" name="image">
+              </button>
+              <small *ngIf="submitted && productFormGroup.get('image')?.invalid" class="text-danger">Image est obligatoire</small> 
+            </div>
+            <div class="mb-3">
+              <label for="name" class="col-form-label">Nom:</label>
+              <input type="text" formControlName="name" name="name" class="form-control" id="name" placeholder="Entrer nom" required>
+              <small *ngIf="submitted && productFormGroup.get('name')?.invalid" class="text-danger">Nom est obligatoire</small>
+            </div>
+            <div class="mb-3">
+              <label for="price" class="col-form-label">Prix:</label>
+              <input type="number" formControlName="price" name="price" class="form-control" id="price" placeholder="Entrer prix" required>
+              <small *ngIf="submitted && productFormGroup.get('price')?.invalid" class="text-danger">Prix est obligatoire</small>
+            </div>
+            <div class="mb-3">
+              <label for="category" class="col-form-label">Catégorie:</label>
+              <select class="form-control" id="category" required formControlName="category" name="category" type="string">
+                <option *ngFor="let cat of categoryList" [value]="cat.id">{{cat.name}}</option>
+              </select>
+              <small *ngIf="productFormGroup.get('category')?.invalid && productFormGroup.get('category')?.touched" class="text-danger">Catégorie est obligatoire</small>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fermer</button>
+          <button type="button" class="btn btn-primary" (click)="addProduct()">Ajouter</button>
+        </div>
+      </div>
+    </div>
+  </div>
